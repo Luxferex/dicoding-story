@@ -2,10 +2,10 @@ import 'regenerator-runtime';
 
 const CACHE_NAME = 'dicoding-story-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/favicon.png',
-  '/manifest.json',
+  './',
+  './index.html',
+  './favicon.png',
+  './manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
