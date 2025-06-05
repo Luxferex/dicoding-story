@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="view-transition" content="same-origin" />
     <meta name="theme-color" content="#213448" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
+
     <link rel="shortcut icon" href="./favicon.png" />
     <link rel="manifest" href="./manifest.json" />
 
@@ -23,9 +25,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <title>Dicoding Story</title>
-    <head>
-      <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
-    </head>
+   
   <body>
     <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
     <header>

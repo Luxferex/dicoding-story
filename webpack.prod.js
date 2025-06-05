@@ -7,14 +7,14 @@ const path = require('path');
 
 module.exports = merge(common, {
   mode: 'production',
+  output: {
+    publicPath: '/dicoding-story/',
+  },
   module: {
     rules: [
       {
         test: /\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-        ],
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
         test: /\.js$/,
