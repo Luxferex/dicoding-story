@@ -1,2 +1,1 @@
 APP_URL=https://luxferex.github.io/dicoding-story
-MAP_SERVICE_API_KEY=<api_key>
