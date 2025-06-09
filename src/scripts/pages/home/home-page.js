@@ -96,9 +96,27 @@ export default class HomePage {
     storiesContainer.innerHTML = storiesHTML;
     storiesContainer.style.display = 'block';
 
-    // Tambahkan view-transition-name pada setiap story-item
     document.querySelectorAll('.story-item').forEach((item, index) => {
       item.style.viewTransitionName = `story-item-${index}`;
+    });
+
+    document.querySelectorAll('.save-story-btn').forEach((button) => {
+      button.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const storyId = event.target.dataset.id;
+        const story = this._stories.find((s) => s.id === storyId);
+
+        if (story) {
+          const result = await this._storyPresenter.saveStoryToIndexedDB(story);
+          if (!result.error) {
+            alert('Cerita berhasil disimpan!');
+            button.textContent = 'Tersimpan';
+            button.disabled = true;
+          } else {
+            alert(`Gagal menyimpan cerita: ${result.message}`);
+          }
+        }
+      });
     });
   }
 
@@ -117,7 +135,10 @@ export default class HomePage {
             day: 'numeric',
           })}</p>
           <p class="story-description">${story.description.substring(0, 150)}...</p>
-          <a href="#/story/${story.id}" class="story-link">Baca Selengkapnya</a>
+          <div class="story-actions">
+            <a href="#/story/${story.id}" class="story-link">Baca Selengkapnya</a>
+            <button class="save-story-btn" data-id="${story.id}">Simpan Cerita</button>
+          </div>
         </div>
       </div>
     `;

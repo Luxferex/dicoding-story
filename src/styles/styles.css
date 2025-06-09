@@ -643,35 +643,65 @@ select:focus,
   outline: none;
 }
 
-/* Tambahkan di bagian akhir file styles.css */
-
-/* Notification Button */
-.notification-btn {
-  display: inline-block;
-  margin: 10px auto;
-  padding: 8px 16px;
-  background-color: #213448;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.notification-btn:hover {
-  background-color: #1a2a3a;
-}
-
-.notification-btn:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-/* Saved Stories */
 .story-actions {
   display: flex;
   gap: 10px;
   margin-top: 10px;
+}
+
+.save-story-btn,
+.delete-story-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.save-story-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.delete-story-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.save-story-btn:hover {
+  background-color: #388e3c;
+}
+
+.delete-story-btn:hover {
+  background-color: #d32f2f;
+}
+
+.save-story-btn:disabled {
+  background-color: #a5d6a7;
+  cursor: not-allowed;
+}
+
+.notification-btn {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.notification-btn:hover {
+  background-color: #1976d2;
+}
+
+.notification-btn:disabled {
+  background-color: #bbdefb;
+  cursor: not-allowed;
 }
 
 .delete-story-btn {

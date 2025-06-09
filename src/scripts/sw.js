@@ -1,8 +1,7 @@
 import 'regenerator-runtime';
 
 const CACHE_NAME = 'dicoding-story-v1';
-// Gunakan path relatif terhadap root GitHub Pages
-const baseUrl = '/';
+const baseUrl = self.location.pathname.includes('/dicoding-story/') ? '/dicoding-story/' : '/';
 const urlsToCache = [
   baseUrl,
   `${baseUrl}index.html`,
@@ -21,6 +20,7 @@ self.addEventListener('install', (event) => {
       return cache.addAll(urlsToCache);
     })
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -29,6 +29,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(cacheNames.filter((cacheName) => cacheName !== CACHE_NAME).map((cacheName) => caches.delete(cacheName)));
     })
   );
+  event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('fetch', (event) => {

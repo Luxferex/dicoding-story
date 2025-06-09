@@ -1,4 +1,3 @@
-// CSS imports
 import '../styles/styles.css';
 import 'regenerator-runtime';
 
@@ -9,7 +8,7 @@ import NotificationHelper from './utils/notification-helper';
 const registerServiceWorker = async () => {
   if ('serviceWorker' in navigator) {
     try {
-      const registration = await navigator.serviceWorker.register('./sw.js');
+      const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('Service Worker registered with scope:', registration.scope);
       return registration;
     } catch (error) {
@@ -49,24 +48,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Register service worker
   await registerServiceWorker();
-
   const token = localStorage.getItem('token');
   if (token) {
-    // Add event listener
-    notificationBtn.addEventListener('click', async () => {
-      const permissionGranted = await NotificationHelper.requestPermission();
+    const notificationBtn = document.getElementById('notification-btn');
 
-      if (permissionGranted) {
-        const result = await NotificationHelper.subscribePushNotification(token);
+    if (notificationBtn) {
+      notificationBtn.addEventListener('click', async () => {
+        const permissionGranted = await NotificationHelper.requestPermission();
 
-        if (!result.error) {
-          notificationBtn.innerHTML = '<i class="fas fa-bell"></i> Notifikasi Aktif';
-          notificationBtn.disabled = true;
-          alert('Notifikasi berhasil diaktifkan!');
-        } else {
-          alert(`Gagal mengaktifkan notifikasi: ${result.message}`);
+        if (permissionGranted) {
+          const result = await NotificationHelper.subscribePushNotification(token);
+
+          if (!result.error) {
+            notificationBtn.innerHTML = '<i class="fas fa-bell"></i> Notifikasi Aktif';
+            notificationBtn.disabled = true;
+            alert('Notifikasi berhasil diaktifkan!');
+          } else {
+            alert(`Gagal mengaktifkan notifikasi: ${result.message}`);
+          }
         }
-      }
-    });
+      });
+    }
   }
 });
