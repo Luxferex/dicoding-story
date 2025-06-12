@@ -17,12 +17,15 @@ const urlsToCache = [
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('Caching app shell');
-      return cache.addAll(urlsToCache.filter(url => url));
-    }).catch(error => {
-      console.error('Cache addAll failed:', error);
-    })
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => {
+        console.log('Caching app shell');
+        return cache.addAll(urlsToCache.filter((url) => url));
+      })
+      .catch((error) => {
+        console.error('Cache addAll failed:', error);
+      })
   );
   self.skipWaiting();
 });
@@ -76,10 +79,9 @@ self.addEventListener('fetch', (event) => {
   // Handle navigation requests
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
-        .catch(() => {
-          return caches.match('/index.html');
-        })
+      fetch(event.request).catch(() => {
+        return caches.match('/index.html');
+      })
     );
     return;
   }
@@ -123,18 +125,36 @@ self.addEventListener('push', (event) => {
   } catch (error) {
     notificationData = {
       title: 'Dicoding Story',
-      body: event.data ? event.data.text() : 'Notifikasi baru',
+      body: event.data ? event.data.text() : 'Ada cerita baru yang tersedia!',
     };
   }
 
+  // Get the correct base URL
+  const baseUrl = self.location.origin;
+  const appUrl = baseUrl + (self.location.pathname.includes('/dicoding-story/') ? '/dicoding-story/' : '/');
+
   const options = {
-    body: notificationData.body || 'Notifikasi baru dari Dicoding Story',
-    icon: '/favicon.png',
-    badge: '/favicon.png',
+    body: notificationData.body || 'Ada cerita baru di Dicoding Story!',
+    icon: `${appUrl}favicon.png`,
+    badge: `${appUrl}favicon.png`,
     vibrate: [100, 50, 100],
     data: {
-      url: notificationData.url || '/',
+      url: notificationData.url || appUrl,
+      timestamp: Date.now(),
     },
+    actions: [
+      {
+        action: 'open',
+        title: 'Buka Aplikasi',
+        icon: `${appUrl}favicon.png`,
+      },
+      {
+        action: 'close',
+        title: 'Tutup',
+      },
+    ],
+    requireInteraction: true,
+    tag: 'dicoding-story-notification',
   };
 
   event.waitUntil(self.registration.showNotification(notificationData.title || 'Dicoding Story', options));
@@ -144,15 +164,22 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const urlToOpen = event.notification.data?.url || '/';
+  if (event.action === 'close') {
+    return;
+  }
+
+  const urlToOpen = event.notification.data?.url || self.location.origin;
 
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((windowClients) => {
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Check if there's already a window/tab open with the target URL
       for (const client of windowClients) {
-        if (client.url === urlToOpen && 'focus' in client) {
+        if (client.url.includes('localhost:9000') || client.url.includes(self.location.origin)) {
           return client.focus();
         }
       }
+
+      // If no window/tab is open, open a new one
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }
