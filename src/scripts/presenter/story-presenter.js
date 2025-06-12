@@ -12,9 +12,30 @@ class StoryPresenter {
 
     try {
       const token = this._authModel.getToken();
+      
+      // Check if user is logged in
+      if (!token) {
+        this._view.showError('Silakan login terlebih dahulu');
+        // Redirect to login page
+        setTimeout(() => {
+          window.location.hash = '#/login';
+        }, 2000);
+        return;
+      }
+
       const { stories, error, message } = await this._model.getStories(token);
 
       if (error) {
+        // Handle 401 Unauthorized
+        if (message && message.includes('401')) {
+          this._authModel.clearAuthData();
+          this._view.showError('Sesi Anda telah berakhir. Silakan login kembali.');
+          setTimeout(() => {
+            window.location.hash = '#/login';
+          }, 2000);
+          return;
+        }
+        
         this._view.showError(message);
         return;
       }
@@ -28,6 +49,7 @@ class StoryPresenter {
 
       this._view.showStories(stories);
     } catch (error) {
+      console.error('Error in getAllStories:', error);
       this._view.showError('Terjadi kesalahan saat memuat data');
     } finally {
       this._view.hideLoading();

@@ -15,36 +15,55 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', (event) => {
+  console.log('Service Worker installing...');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache);
+      console.log('Caching app shell');
+      return cache.addAll(urlsToCache.filter(url => url));
+    }).catch(error => {
+      console.error('Cache addAll failed:', error);
     })
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
+  console.log('Service Worker activating...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
-      return Promise.all(cacheNames.filter((cacheName) => cacheName !== CACHE_NAME).map((cacheName) => caches.delete(cacheName)));
+      return Promise.all(
+        cacheNames
+          .filter((cacheName) => cacheName !== CACHE_NAME)
+          .map((cacheName) => {
+            console.log('Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          })
+      );
     })
   );
   event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('fetch', (event) => {
-  const requestUrl = new URL(event.request.url);
-
-  // Skip cross-origin requests
-  if (requestUrl.origin !== location.origin && !event.request.url.includes('unpkg.com') && !event.request.url.includes('cdnjs.cloudflare.com') && !event.request.url.includes('fonts.googleapis.com')) {
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
     return;
   }
+
+  const requestUrl = new URL(event.request.url);
 
   // Handle API requests with network-first strategy
   if (event.request.url.includes('story-api.dicoding.dev')) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
+          // Clone response before caching
+          if (response.ok) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
           return response;
         })
         .catch(() => {
@@ -54,6 +73,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Handle navigation requests
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          return caches.match('/index.html');
+        })
+    );
+    return;
+  }
+
+  // Handle other requests with cache-first strategy
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
@@ -74,9 +105,6 @@ self.addEventListener('fetch', (event) => {
           return fetchResponse;
         })
         .catch(() => {
-          if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
-          }
           return new Response('Network error happened', {
             status: 408,
             headers: { 'Content-Type': 'text/plain' },

@@ -8,14 +8,38 @@ import NotificationHelper from './utils/notification-helper';
 const registerServiceWorker = async () => {
   if ('serviceWorker' in navigator) {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registered with scope:', registration.scope);
+      // Wait for page to load completely
+      await new Promise(resolve => {
+        if (document.readyState === 'complete') {
+          resolve();
+        } else {
+          window.addEventListener('load', resolve);
+        }
+      });
+
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/'
+      });
+      
+      console.log('Service Worker registered successfully:', registration.scope);
+      
+      // Handle updates
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('New service worker available');
+          }
+        });
+      });
+      
       return registration;
     } catch (error) {
       console.error('Service Worker registration failed:', error);
       return null;
     }
   }
+  console.log('Service Worker not supported');
   return null;
 };
 
